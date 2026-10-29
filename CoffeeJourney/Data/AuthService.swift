@@ -19,16 +19,6 @@ struct SignUpRequest: Encodable {
 }
 
 @MainActor
-/*protocol AuthServicing {
-    func login(
-        email: String,
-        password: String
-    ) async throws -> String
-
-    func signUp(
-        request: SignUpRequest
-    ) async throws
-}*/
 
 protocol AuthServicing {
     func login(email: String, password: String) async throws -> String
