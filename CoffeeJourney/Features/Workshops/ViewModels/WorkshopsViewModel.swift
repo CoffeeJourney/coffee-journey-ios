@@ -102,4 +102,18 @@ final class WorkshopsViewModel {
             return .secondaryBackground
         }
     }
+    
+    static func imageForCategory(_ category: String) -> String {
+        switch category {
+        case "Barista": return "barista"
+        case "Filter Coffee": return "filterCoffee"
+        case "Latte Art": return "latteArt"
+        case "Roasting": return "roasting"
+        case "Tasting": return "tasting"
+        case "Coffee Culture": return "coffeeCulture"
+        case "World Coffee": return "worldCoffee"
+        case "Pastry": return "pastry"
+        default: return "coffeeBanner"
+        }
+    }
 }
