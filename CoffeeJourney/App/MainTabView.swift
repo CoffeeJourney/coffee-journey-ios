@@ -34,6 +34,7 @@ struct MainTabView: View {
             Tab("My Planning", systemImage: "ticket") {
                 NavigationStack {
                     ReservationsView(
+                        container: container,
                         viewModel: ReservationsViewModel(
                             reservationService: container.reservationService,
                             workshopService: container.workshopService

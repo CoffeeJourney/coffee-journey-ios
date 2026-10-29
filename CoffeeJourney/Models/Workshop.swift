@@ -24,4 +24,15 @@ struct Workshop: Codable, Identifiable, Sendable {
     var hasAvailablePlaces: Bool {
         availablePlaces > 0
     }
+    
+    var formattedTime: String {
+        let start = startTime.formatted(date: .omitted, time: .shortened)
+        let end = endTime.formatted(date: .omitted, time: .shortened)
+
+        return "\(start) – \(end)"
+    }
+    
+    var formattedDate: String {
+        startTime.formatted(.dateTime.month(.wide).day().locale(Locale(identifier: "en_US")))
+    }
 }

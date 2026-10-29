@@ -8,50 +8,55 @@
 import SwiftUI
 
 struct ReservationsView: View {
+    let container: AppContainer
     @State var viewModel: ReservationsViewModel
 
     var body: some View {
-        List {
-            ForEach(viewModel.reservations) { reservation in
-                VStack(alignment: .leading, spacing: 6) {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+
+                PageHeaderView(
+                    title: "My planning",
+                    subtitle: "Your upcoming workshops",
+                    showSearch: false
+                )
+
+                ForEach(viewModel.reservations) { reservation in
                     if let workshop = viewModel.workshop(for: reservation) {
-                        Text(workshop.name)
-                            .font(.headline)
-
-                        Text(workshop.categoryName)
-                            .foregroundStyle(.secondary)
-
-                        Text(
-                            workshop.startTime.formatted(
-                                date: .abbreviated,
-                                time: .shortened
+                        NavigationLink {
+                            WorkshopDetailView(
+                                workshopID: workshop.id,
+                                viewModel: WorkshopDetailViewModel(
+                                    workshopService: container.workshopService,
+                                    reservationService: container.reservationService,
+                                    profileService: container.profileService,
+                                    sessionManager: container.sessionManager
+                                )
                             )
-                        )
-                        .font(.subheadline)
-
-                        Text(
-                            "\(workshop.availablePlaces) place(s) disponible(s)"
-                        )
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        } label: {
+                            WorkshopCardView(
+                                title: workshop.name,
+                                time: workshop.formattedTime,
+                                location: "",
+                                spotsLeft: workshop.availablePlaces,
+                                icon: WorkshopsViewModel.iconForCategory(workshop.categoryName),
+                                iconColor: .primaryBrown,
+                                iconBackground: WorkshopsViewModel.colorForCategory(workshop.categoryName),
+                                category: workshop.categoryName,
+                                date: workshop.formattedDate,
+                                reservationStatus: reservation.status
+                            )
+                        }
+                        .buttonStyle(.plain)
                     } else {
                         Text("Atelier introuvable")
                             .font(.headline)
                     }
-
-                    Text("Statut : \(reservation.status)")
-                        .foregroundStyle(.secondary)
-
-                    Button("Annuler la réservation", role: .destructive) {
-                        Task {
-                            await viewModel.cancel(reservation)
-                        }
-                    }
                 }
-                .padding(.vertical, 4)
             }
         }
-        .navigationTitle("My Planning")
+        .padding(.horizontal, 20)
+        .background(Color.primaryBackground.ignoresSafeArea())
         .overlay {
             if viewModel.isLoading {
                 ProgressView("Chargement des réservations…")
@@ -88,6 +93,7 @@ struct ReservationsView: View {
 
     NavigationStack {
         ReservationsView(
+            container: container,
             viewModel: ReservationsViewModel(
                 reservationService: container.reservationService,
                 workshopService: container.workshopService
@@ -106,6 +112,7 @@ struct ReservationsView: View {
 
     NavigationStack {
         ReservationsView(
+            container: container,
             viewModel: ReservationsViewModel(
                 reservationService: container.reservationService,
                 workshopService: container.workshopService
