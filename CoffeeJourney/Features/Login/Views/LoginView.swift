@@ -14,6 +14,7 @@ struct LoginView: View {
 
     init(container: AppContainer) {
         self.container = container
+
         _viewModel = State(
             initialValue: LoginViewModel(
                 authService: container.authService,
@@ -23,58 +24,96 @@ struct LoginView: View {
     }
 
     var body: some View {
-        VStack(spacing: 20) {
-            Text("CoffeeFestival")
-                .font(.largeTitle.bold())
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                AuthHeader(subtitle: "Welcome back!")
+                    .padding(.top, 62)
 
-            TextField("Email", text: $viewModel.email)
-                .textContentType(.emailAddress)
-                .keyboardType(.emailAddress)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-                .textFieldStyle(.roundedBorder)
+                VStack(spacing: 12) {
+                    TextField(
+                        "",
+                        text: $viewModel.email,
+                        prompt: Text("Email")
+                            .foregroundColor(AuthStyle.placeholder)
+                    )
+                    .textContentType(.emailAddress)
+                    .keyboardType(.emailAddress)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .submitLabel(.next)
+                    .authTextFieldStyle()
 
-            SecureField("Mot de passe", text: $viewModel.password)
-                .textContentType(.password)
-                .textFieldStyle(.roundedBorder)
-
-            if let error = viewModel.errorMessage {
-                Text(error)
-                    .foregroundStyle(.red)
-                    .font(.footnote)
-            }
-
-            Button {
-                Task {
-                    await viewModel.login()
+                    SecureField(
+                        "",
+                        text: $viewModel.password,
+                        prompt: Text("Password")
+                            .foregroundColor(AuthStyle.placeholder)
+                    )
+                    .textContentType(.password)
+                    .submitLabel(.go)
+                    .authTextFieldStyle()
                 }
-            } label: {
-                if viewModel.isLoading {
-                    ProgressView()
-                } else {
-                    Text("Se connecter")
-                        .frame(maxWidth: .infinity)
-                }
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(viewModel.isLoading)
+                .padding(.top, 36)
 
-            NavigationLink("Créer un compte") {
-                SignUpView(container: container)
+                if let error = viewModel.errorMessage {
+                    Text(error)
+                        .font(.footnote)
+                        .foregroundStyle(.red)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.top, 12)
+                }
+
+                Button {
+                    Task {
+                        await viewModel.login()
+                    }
+                } label: {
+                    Group {
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .tint(.white)
+                        } else {
+                            Text("Log In")
+                        }
+                    }
+                }
+                .buttonStyle(AuthPrimaryButtonStyle())
+                .disabled(viewModel.isLoading)
+                .padding(.top, 24)
+
+                Spacer(minLength: 40)
+
+                HStack(spacing: 12) {
+                    Text("Don't have an account?")
+                        .font(.system(size: 13))
+                        .foregroundStyle(AuthStyle.caramel)
+
+                    NavigationLink {
+                        SignUpView(container: container)
+                    } label: {
+                        Text("Sign up")
+                    }
+                    .buttonStyle(AuthSecondaryButtonStyle())
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, max(36, geometry.safeAreaInsets.bottom + 16))
             }
+            .padding(.horizontal, 28)
+            .frame(
+                maxWidth: .infinity,
+                minHeight: geometry.size.height,
+                alignment: .top
+            )
+            .background(AuthStyle.background.ignoresSafeArea())
         }
-        .padding()
-        .navigationTitle("Connexion")
+        .background(AuthStyle.background.ignoresSafeArea())
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
 #Preview("Login - Déconnecté") {
-    let sessionManager = SessionManager(
-        forceLoggedOut: true
-    )
-    let container = AppContainer(
-        sessionManager: sessionManager
-    )
+    let sessionManager = SessionManager(forceLoggedOut: true)
+    let container = AppContainer(sessionManager: sessionManager)
 
     NavigationStack {
         LoginView(container: container)
@@ -82,12 +121,8 @@ struct LoginView: View {
 }
 
 #Preview("Login - Connecté") {
-    let sessionManager = SessionManager(
-        previewToken: "preview-token"
-    )
-    let container = AppContainer(
-        sessionManager: sessionManager
-    )
+    let sessionManager = SessionManager(previewToken: "preview-token")
+    let container = AppContainer(sessionManager: sessionManager)
 
     NavigationStack {
         LoginView(container: container)
