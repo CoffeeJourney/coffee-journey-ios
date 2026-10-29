@@ -17,6 +17,8 @@ struct WorkshopCardView: View {
     let iconColor: Color
     let iconBackground: Color
     
+    var category: String? = nil
+    
     var body: some View {
         
         HStack(spacing: 16){
@@ -40,20 +42,25 @@ struct WorkshopCardView: View {
                     .font(.system(size: 12))
                     .foregroundStyle(.primaryBrown)
                 
-                // Localisation
+                // Catégorie ou localisation
                 HStack(spacing: 8) {
-                    Image(systemName: "mappin.and.ellipse")
-                        .frame(width: 20)
-                    Text(location)
+                    if let category {
+                        Text(category)
+                    } else {
+                        Image(systemName: "mappin.and.ellipse")
+                            .frame(width: 20)
+                        Text(location)
+                    }
                 }
                 .font(.system(size: 12))
                 .foregroundStyle(.secondaryBrown)
                 
                 // Places disponibles
                 HStack(spacing: 8) {
-                    Image(systemName: "person.2")
+                    Image(systemName: spotsLeft == 0 ? "xmark.circle" : "person.2")
                         .frame(width: 20)
-                    Text("\(spotsLeft) spots left")
+
+                    Text(spotsLeft == 0 ? "Full" : "\(spotsLeft) spots left")
                 }
                 .font(.system(size: 12))
                 .foregroundStyle(.secondaryBrown)
