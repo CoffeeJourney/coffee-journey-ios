@@ -18,6 +18,8 @@ struct WorkshopCardView: View {
     let iconBackground: Color
     
     var category: String? = nil
+    var date: String? = nil
+    var reservationStatus: String? = nil
     
     var body: some View {
         
@@ -37,33 +39,55 @@ struct WorkshopCardView: View {
                 Text(title)
                     .font(.system(size: 16, weight: .bold, design: .serif))
                     .foregroundStyle(.primaryBrown)
+                if let date {
+                    Text(date)
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondaryBrown)
+                }
                 
                 Text(time)
                     .font(.system(size: 12))
                     .foregroundStyle(.primaryBrown)
                 
                 // Catégorie ou localisation
-                HStack(spacing: 8) {
-                    if let category {
-                        Text(category)
-                    } else {
+                if let category {
+                    Text(category)
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondaryBrown)
+                }
+
+                if !location.isEmpty {
+                    HStack(spacing: 8) {
                         Image(systemName: "mappin.and.ellipse")
                             .frame(width: 20)
+
                         Text(location)
                     }
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondaryBrown)
                 }
-                .font(.system(size: 12))
-                .foregroundStyle(.secondaryBrown)
                 
                 // Places disponibles
-                HStack(spacing: 8) {
-                    Image(systemName: spotsLeft == 0 ? "xmark.circle" : "person.2")
-                        .frame(width: 20)
+                if reservationStatus == nil {
+                    HStack(spacing: 8) {
+                        Image(systemName: spotsLeft == 0 ? "xmark.circle" : "person.2")
+                            .frame(width: 20)
 
-                    Text(spotsLeft == 0 ? "Full" : "\(spotsLeft) spots left")
+                        Text(spotsLeft == 0 ? "Full" : "\(spotsLeft) spots left")
+                    }
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondaryBrown)
                 }
-                .font(.system(size: 12))
-                .foregroundStyle(.secondaryBrown)
+                if let reservationStatus {
+                    HStack(spacing: 8) {
+                        Image(systemName: "checkmark.circle")
+                            .frame(width: 20)
+
+                        Text("Statut : \(reservationStatus)")
+                    }
+                    .font(.system(size: 12))
+                    .foregroundStyle(.primaryGreen)
+                }
             }
             
             Spacer()

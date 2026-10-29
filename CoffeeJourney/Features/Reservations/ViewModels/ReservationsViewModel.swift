@@ -44,7 +44,12 @@ final class ReservationsViewModel {
                 loadedWorkshops
             )
 
-            self.reservations = reservations
+            self.reservations = reservations.sorted { first, second in
+                let firstDate = workshops.first { $0.id == first.workshopID }?.startTime ?? .distantFuture
+                let secondDate = workshops.first { $0.id == second.workshopID }?.startTime ?? .distantFuture
+
+                return firstDate < secondDate
+            }
             self.workshops = workshops
         } catch {
             errorMessage = error.localizedDescription

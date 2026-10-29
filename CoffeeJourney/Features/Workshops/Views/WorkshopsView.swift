@@ -60,7 +60,7 @@ struct WorkshopsView: View {
                                     } label: {
                                         HStack(spacing: 6) {
                                             if category != "All" {
-                                                Image(systemName: viewModel.iconForCategory(category))
+                                                Image(systemName: WorkshopsViewModel.iconForCategory(category))
                                             }
 
                                             Text(category)
@@ -116,9 +116,9 @@ struct WorkshopsView: View {
                                             time: workshop.formattedTime,
                                             location: "",
                                             spotsLeft: workshop.availablePlaces,
-                                            icon: viewModel.iconForCategory(workshop.categoryName),
+                                            icon: WorkshopsViewModel.iconForCategory(workshop.categoryName),
                                             iconColor: .primaryBrown,
-                                            iconBackground: viewModel.colorForCategory(workshop.categoryName),
+                                            iconBackground: WorkshopsViewModel.colorForCategory(workshop.categoryName),
                                             category: workshop.categoryName
                                         )
                                     }

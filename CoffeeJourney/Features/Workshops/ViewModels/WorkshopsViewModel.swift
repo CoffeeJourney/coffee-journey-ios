@@ -59,9 +59,9 @@ final class WorkshopsViewModel {
         }
     }
     
-    func iconForCategory(_ category: String) -> String {
+    static func iconForCategory(_ category: String) -> String {
         switch category {
-        case "Barista", "Barista de fou", "Pastry":
+        case "Barista", "Pastry":
             return "cup.and.saucer"
         case "Coffee Culture":
             return "book"
@@ -80,7 +80,7 @@ final class WorkshopsViewModel {
         }
     }
     
-    func colorForCategory(_ category: String) -> Color {
+    static func colorForCategory(_ category: String) -> Color {
         switch category {
         case "Barista":
             return .secondaryBrown.opacity(0.25)
@@ -92,6 +92,12 @@ final class WorkshopsViewModel {
             return .primaryGreen.opacity(0.25)
         case "Latte Art":
             return .secondaryGreen
+        case "Coffee Culture":
+            return .primaryBrown.opacity(0.12)
+        case "Filter Coffee":
+            return .primaryGreen.opacity(0.15)
+        case "World Coffee":
+            return .secondaryBrown.opacity(0.15)
         default:
             return .secondaryBackground
         }
