@@ -14,4 +14,4 @@ L’application permet aux festivaliers de découvrir les ateliers autour du caf
 
 ## Équipe
 
-Advanced Program — Third Challenge
+Advanced Program - Third Challenge
