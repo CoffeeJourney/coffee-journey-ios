@@ -11,23 +11,33 @@ struct ProfileView: View {
     @State var viewModel: ProfileViewModel
 
     var body: some View {
-        List {
-            if let user = viewModel.user {
-                LabeledContent("Nom", value: user.name)
-                LabeledContent("Email", value: user.email)
-                LabeledContent("Rôle", value: user.role)
-            }
+        VStack(alignment: .leading) {
 
-            if let error = viewModel.errorMessage {
-                Text(error)
-                    .foregroundStyle(.red)
-            }
+            PageHeaderView(
+                title: "Profile",
+                subtitle: ""
+            )
+            .padding(.horizontal, 20)
 
-            Button("Se déconnecter", role: .destructive) {
-                viewModel.signOut()
+            List {
+                if let user = viewModel.user {
+                    LabeledContent("Nom", value: user.name)
+                    LabeledContent("Email", value: user.email)
+                    LabeledContent("Rôle", value: user.role)
+                }
+
+                if let error = viewModel.errorMessage {
+                    Text(error)
+                        .foregroundStyle(.red)
+                }
+
+                Button("Se déconnecter", role: .destructive) {
+                    viewModel.signOut()
+                }
             }
+            .scrollContentBackground(.hidden)
         }
-        .navigationTitle("Profile")
+        .background(Color.primaryBackground.ignoresSafeArea())
         .overlay {
             if viewModel.isLoading {
                 ProgressView("Chargement du profil…")

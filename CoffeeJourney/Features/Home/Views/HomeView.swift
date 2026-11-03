@@ -12,13 +12,10 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: 24) {
 
                 // En-tête
-                HStack {
-                    Text("Coffee Journey")
-                        .font(AppTypography.pageTitle)
-                        .foregroundStyle(.primaryBrown)
-
-                    Spacer()
-                }
+                PageHeaderView(
+                    title: "Coffee Journey",
+                    subtitle: ""
+                )
 
                 // Message d'accueil si connecté
                 if let name = viewModel.userName {
@@ -149,8 +146,8 @@ struct HomeView: View {
                 .background(.secondaryGreen)
                 .clipShape(.rect(cornerRadius: 20))
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 24)
+            .padding(.horizontal, 20)
+
         }
         .background(.primaryBackground)
         .task {
