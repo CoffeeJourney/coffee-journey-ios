@@ -48,8 +48,7 @@ struct WorkshopsView: View {
 
                         PageHeaderView(
                             title: "Workshops",
-                            subtitle: "Discover our workshops",
-                            showSearch: true
+                            subtitle: "Discover our workshops"
                         )
 
                         ScrollView(.horizontal, showsIndicators: false) {

@@ -11,8 +11,6 @@ struct PageHeaderView: View {
 
     let title: String
     let subtitle: String
-    
-    var showSearch: Bool = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -23,11 +21,6 @@ struct PageHeaderView: View {
 
                 Spacer()
 
-                if showSearch {
-                    Image(systemName: "magnifyingglass")
-                        .font(.system(size: 22))
-                        .foregroundStyle(.primaryBrown)
-                }
             }
 
             Text(subtitle)

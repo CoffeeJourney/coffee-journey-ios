@@ -10,65 +10,142 @@ import SwiftUI
 struct WorkshopDetailView: View {
     let workshopID: UUID
     @State var viewModel: WorkshopDetailViewModel
+    @State private var showCancelConfirmation = false
 
     var body: some View {
-        Group {
+        ZStack {
             if let workshop = viewModel.workshop {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
+                        Image(WorkshopsViewModel.imageForCategory(workshop.categoryName))
+                            .resizable()
+                            .scaledToFill()
+                            .frame(height: 200)
+                            .frame(maxWidth: .infinity)
+                            .clipped()
+                            .clipShape(.rect(cornerRadius: 14))
                         Text(workshop.name)
-                            .font(.title.bold())
+                            .font(.system(size: 24, weight: .bold, design: .serif))
+                            .foregroundStyle(.primaryBrown)
+                        
+                        HStack(spacing: 12) {
+                            Image(systemName: WorkshopsViewModel.iconForCategory(workshop.categoryName))
+                                .font(.system(size: 18))
+                                .foregroundStyle(.primaryBrown)
+                                .frame(width: 44, height: 44)
+                                .background(WorkshopsViewModel.colorForCategory(workshop.categoryName))
+                                .clipShape(.rect(cornerRadius: 12))
 
-                        Text(workshop.categoryName)
-                            .foregroundStyle(.secondary)
+                            Text(workshop.categoryName)
+                                .font(.system(size: 13))
+                                .foregroundStyle(.primaryBrown)
+                        }
+                        
+                        Divider()
+                            .overlay(.secondaryBrown.opacity(0.3))
+                        
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "calendar")
+                                    .frame(width: 20)
+                                    .foregroundStyle(.secondaryBrown)
 
-                        Text(workshop.description)
+                                Text(workshop.formattedDate)
+                                    .foregroundStyle(.primaryBrown)
+                            }
+                            
+                            HStack(spacing: 12) {
+                                Image(systemName: "person.2")
+                                    .frame(width: 20)
+                                    .foregroundStyle(.secondaryBrown)
 
-                        LabeledContent(
-                            "Places disponibles",
-                            value: "\(workshop.availablePlaces)"
-                        )
+                                Text("\(workshop.availablePlaces) spots left")
+                                    .foregroundStyle(.primaryBrown)
+                            }
 
-                        LabeledContent(
-                            "Début",
-                            value: workshop.startTime.formatted(
-                                date: .abbreviated,
-                                time: .shortened
-                            )
-                        )
+                            HStack(spacing: 12) {
+                                Image(systemName: "clock")
+                                    .frame(width: 20)
+                                    .foregroundStyle(.secondaryBrown)
 
-                        LabeledContent(
-                            "Fin",
-                            value: workshop.endTime.formatted(
-                                date: .omitted,
-                                time: .shortened
-                            )
-                        )
+                                Text(workshop.formattedTime)
+                                    .foregroundStyle(.primaryBrown)
+                            }
+                            
+                            HStack(spacing: 12) {
+                                Image(systemName: "mappin.and.ellipse")
+                                    .frame(width: 20)
+                                    .foregroundStyle(.secondaryBrown)
+
+                                Text("Tasting Room")
+                                    .foregroundStyle(.primaryBrown)
+                            }
+                        }
+                        
+                        Divider()
+                            .overlay(.secondaryBrown.opacity(0.3))
+
+                        
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("ABOUT THIS WORKSHOP")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(.secondaryBrown)
+
+                            Text(workshop.description)
+                                .font(.system(size: 14))
+                                .foregroundStyle(.primaryBrown)
+                        }
+                        
+                        if viewModel.hasAlreadyReserved {
+                            HStack(spacing: 12) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(.primaryGreen)
+
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Your reservation is confirmed!")
+                                        .font(.system(size: 14, weight: .semibold))
+
+                                    Text("You will receive a reminder before the workshop.")
+                                        .font(.system(size: 12))
+                                }
+                                .foregroundStyle(.primaryGreen)
+                            }
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(.secondaryGreen)
+                            .clipShape(.rect(cornerRadius: 12))
+                        }
 
                         Button {
-                            Task {
-                                await viewModel.reserve()
+                            if viewModel.hasAlreadyReserved {
+                                showCancelConfirmation = true
+                            } else {
+                                Task {
+                                    await viewModel.reserve()
+                                }
                             }
                         } label: {
                             if viewModel.isBooking {
                                 ProgressView()
                             } else {
-                                Text("Réserver cet atelier")
+                                Text(
+                                    viewModel.hasAlreadyReserved ? "Manage reservation" :
+                                    !workshop.hasAvailablePlaces ? "Full booked" : "Book now"
+                                )
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(
+                                    !workshop.hasAvailablePlaces && !viewModel.hasAlreadyReserved
+                                    ? Color.secondaryBrown
+                                    : Color.primaryGreen
+                                )
+                                .clipShape(.rect(cornerRadius: 14))
                             }
                         }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(!viewModel.canReserve)
-
-                        if viewModel.hasAlreadyReserved {
-                            Text("Tu as déjà réservé cet atelier.")
-                                .foregroundStyle(.secondary)
-                        }
-
-                        if let message = viewModel.successMessage {
-                            Text(message)
-                                .foregroundStyle(.green)
-                        }
-
+                        .disabled(viewModel.isLoading || viewModel.isBooking || (!viewModel.hasAlreadyReserved && !viewModel.canReserve))
+                        
                         if let error = viewModel.errorMessage {
                             Text(error)
                                 .foregroundStyle(.red)
@@ -76,19 +153,64 @@ struct WorkshopDetailView: View {
                     }
                     .padding()
                 }
+                .background(Color.primaryBackground.ignoresSafeArea())
             } else if viewModel.isLoading {
-                ProgressView("Chargement de l'atelier…")
+                ProgressView("Loading workshop…")
             } else {
                 ContentUnavailableView(
-                    "Atelier indisponible",
+                    "Workshop unavailable",
                     systemImage: "cup.and.saucer",
                     description: Text(
-                        viewModel.errorMessage ?? "Aucune information disponible."
+                        viewModel.errorMessage ?? "No information available."
                     )
                 )
             }
+            if showCancelConfirmation {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+
+                VStack(spacing: 20) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 50))
+                        .foregroundStyle(.red)
+
+                    Text("Do you really want to cancel your reservation?")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(.primaryBrown)
+                        .multilineTextAlignment(.center)
+
+                    Button("Yes, cancel it") {
+                        Task {
+                            await viewModel.cancelReservation()
+
+                            if !viewModel.hasAlreadyReserved {
+                                showCancelConfirmation = false
+                            }
+                        }
+                    }
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(.red)
+                    .clipShape(.rect(cornerRadius: 12))
+
+                    Button("No, stay enrolled") {
+                        showCancelConfirmation = false
+                    }
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(.primaryGreen)
+                    .clipShape(.rect(cornerRadius: 12))
+                }
+                .padding(24)
+                .frame(maxWidth: 320)
+                .background(.secondaryBackground)
+                .clipShape(.rect(cornerRadius: 20))
+            }
         }
-        .navigationTitle("Workshop detail")
         .navigationBarTitleDisplayMode(.inline)
         .task {
             await viewModel.load(workshopID: workshopID)
@@ -115,7 +237,7 @@ struct WorkshopDetailView: View {
     NavigationStack {
         WorkshopDetailView(
             workshopID: UUID(
-                uuidString: "E8DEB22B-FB51-4FDA-B8D5-5E95E208E8CF" // à changer selon sa base de données
+                uuidString: "029570E7-C275-4D13-A510-F8868D931F48" // à changer selon sa base de données
             )!,
             viewModel: viewModel
         )

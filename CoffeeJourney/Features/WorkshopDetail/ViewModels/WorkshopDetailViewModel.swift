@@ -15,6 +15,8 @@ final class WorkshopDetailViewModel {
     private(set) var isLoading = false
     private(set) var isBooking = false
     private(set) var hasAlreadyReserved = false
+    private var reservationID: UUID?
+    
     var errorMessage: String?
     var successMessage: String?
 
@@ -64,9 +66,11 @@ final class WorkshopDetailViewModel {
             let reservations = try await reservationService
                 .fetchReservations()
 
-            hasAlreadyReserved = reservations.contains {
+            reservationID = reservations.first {
                 $0.workshopID == workshopID
-            }
+            }?.id
+
+            hasAlreadyReserved = reservationID != nil
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -90,9 +94,29 @@ final class WorkshopDetailViewModel {
                 status: "confirmed"
             )
 
-            successMessage = "Réservation créée avec succès."
+            successMessage = "Reservation confirmed successfully."
 
             // Recharge les données depuis le serveur.
+            await load(workshopID: workshop.id)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    func cancelReservation() async {
+        guard let reservationID, let workshop else { return }
+
+        isBooking = true
+        errorMessage = nil
+
+        defer { isBooking = false }
+
+        do {
+            try await reservationService.deleteReservation(id: reservationID)
+
+            self.reservationID = nil
+            hasAlreadyReserved = false
+
             await load(workshopID: workshop.id)
         } catch {
             errorMessage = error.localizedDescription

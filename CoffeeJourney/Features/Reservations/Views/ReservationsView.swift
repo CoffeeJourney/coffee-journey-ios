@@ -18,7 +18,6 @@ struct ReservationsView: View {
                 PageHeaderView(
                     title: "My planning",
                     subtitle: "Your upcoming workshops",
-                    showSearch: false
                 )
 
                 ForEach(viewModel.reservations) { reservation in
