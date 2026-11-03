@@ -101,15 +101,28 @@ struct HomeView: View {
                         )
                     } else {
                         ForEach(viewModel.nextWorkshops) { workshop in
-                            WorkshopCardView(
-                                title: workshop.name,
-                                time: "\(workshop.startTime.formatted(date: .omitted, time: .shortened)) – \(workshop.endTime.formatted(date: .omitted, time: .shortened))",
-                                location: workshop.categoryName,
-                                spotsLeft: workshop.availablePlaces,
-                                icon: "cup.and.saucer",
-                                iconColor: .primaryBrown,
-                                iconBackground: .secondaryBrown.opacity(0.25)
-                            )
+                            NavigationLink {
+                                WorkshopDetailView(
+                                    workshopID: workshop.id,
+                                    viewModel: WorkshopDetailViewModel(
+                                        workshopService: AppContainer().workshopService,
+                                        reservationService: AppContainer().reservationService,
+                                        profileService: AppContainer().profileService,
+                                        sessionManager: AppContainer().sessionManager
+                                    )
+                                )
+                            } label: {
+                                WorkshopCardView(
+                                    title: workshop.name,
+                                    time: "\(workshop.startTime.formatted(date: .omitted, time: .shortened)) – \(workshop.endTime.formatted(date: .omitted, time: .shortened))",
+                                    location: workshop.categoryName,
+                                    spotsLeft: workshop.availablePlaces,
+                                    icon: "cup.and.saucer",
+                                    iconColor: .primaryBrown,
+                                    iconBackground: .secondaryBrown.opacity(0.25)
+                                )
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                 }
@@ -158,7 +171,7 @@ struct HomeView: View {
 
 #Preview("Home - Connecté") {
     let sessionManager = SessionManager(
-        previewToken: "preview-token"
+        previewToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJGM0QzNUU5MC0yNjA5LTQyMTAtQUFFOS04MzM3ODI4QTFEMTkiLCJleHAiOjE3OTM3OTQ4MTEuMzIzMzk1LCJhZG1pbiI6ZmFsc2V9.C5aZUyz_VTW0vrPHHlR2mnywxl1zAOT2w_ta7xXJ8dI"
     )
     let container = AppContainer(
         sessionManager: sessionManager
